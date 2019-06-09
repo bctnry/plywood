@@ -5,7 +5,8 @@ import typescript from 'rollup-plugin-typescript';
 
 // `npm run build` -> `production` is true
 // `npm run dev` -> `production` is false
-const production = !process.env.ROLLUP_WATCH;
+// const production = !process.env.ROLLUP_WATCH;
+const production = false;
 
 export default {
     input: 'src/main.ts',

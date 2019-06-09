@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="bundle.js"></script>
+    <script>
+    </script>
+</head>
+<body>
+    This is a demo for the lexer of the Python-to-JS compiler I'm working on recently.<br />
+    This lexer is currently meant for doing syntax highlighting only, I'm still working on making it a "real" lexer.<br />
+    Please head over <a href="https://github.com/bctnry/plywood/issues">here</a> and file an issue if you found the highlighting is wrong.<br />
+    Highlighting: <span style="color:red">SyntaxError</span> <span style="color:green">Number</span>
+    <span style="color:brown">strings<span style="color:blue">escape</span>strings</span>
+    <b>Keyword</b> <span style="color:blue">Identifier</span><span style="color:gray"><b><i>comment</i></b></span>
+    <div id="editor" style="height:300px;width:500px;border:1px black solid"></div>
+    <div id="viewport">
+
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.4/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var editor = ace.edit("editor");
+        var viewport = document.querySelector('#viewport');
+        editor.getSession().on('change', function () {
+            let a = Plywood.Lexer._lex(editor.getValue());
+            window['TOKENS'] = [];
+            if (a) {
+                for (var _i = 0; _i < a.length; _i++) {
+                    window['TOKENS'].push(Plywood.Token._prettyPrint(a[_i]));
+                }
+            }
+            viewport.innerHTML = blahblahblah(editor.getValue(), a);
+        });
+
+        function blahblahblah(source, tokenList) {
+            let res = '';
+            if (!tokenList) return;
+            for (var i = 0; i < tokenList.length; i++) {
+                var wrapper =
+                    tokenList[i].class === Plywood.Token.TokenClass.ERROR?
+                        (function (x) { return '<span style="color:red"><i>' + x + '</i></span>'; })
+                    :tokenList[i].type === Plywood.Token.TokenType.NUMBER?
+                        (function (x) { return '<span style="color:green">' + x + '</span>'; })
+                    :tokenList[i].type === Plywood.Token.TokenType.STRING?
+                        (tokenList[i].class === Plywood.Token.TokenClass.STRPART?
+                            (function (x) { return '<span style="color:brown">' + x + '</span>'; })
+                            :(function (x) { return '<span style="color:blue">' + x + '</span>'; })
+                        )
+                    :tokenList[i].type === Plywood.Token.TokenType.KEYWORD?
+                        (function (x) { return '<b>' + x + '</b>'; })
+                    :tokenList[i].type === Plywood.Token.TokenType.IDENTIFIER?
+                        (function (x) { return '<span style="color:blue">' + x + '</span>'; })
+                    :tokenList[i].type === Plywood.Token.TokenType.COMMENT?
+                        (function (x) { return '<span style="color:gray"><b><i>' + x + '</i></b></span>'; })
+                    : (function (x) { return x; })
+                ;
+                res += wrapper(source.substring(tokenList[i].start, tokenList[i].end));
+            }
+            return '<pre>' + res + '</pre>';
+        }
+    </script>
+
+</body>
+</html>

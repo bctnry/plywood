@@ -1,13 +1,9 @@
-import Test2 from "./main2";
-import { _expectNumber } from './Lexer';
+import * as Lexer from "./Lexer";
+import * as Token from "./Token";
 
 class Test {
-    public static expectNumber = _expectNumber;
-    public static hello() {
-        console.log('hello');
-        Test2.hello();
-        Test2.hello();
-    }
+    public static Lexer = Lexer;
+    public static Token = Token;
 }
 
 export default Test;
