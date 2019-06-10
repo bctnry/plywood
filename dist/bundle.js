@@ -197,6 +197,12 @@ var Plywood = (function () {
                             st = _LSTATENUM.FR_D_2;
                             break;
                         }
+                        case 'j':
+                        case 'J': {
+                            i += 1;
+                            st = _LSTATENUM.J_1;
+                            break;
+                        }
                         default: {
                             if (_isDigit(input[i])) {
                                 i += 1;
@@ -377,6 +383,12 @@ var Plywood = (function () {
                         case 'X': {
                             i += 1;
                             st = _LSTATENUM.HEX;
+                            break;
+                        }
+                        case 'j':
+                        case 'J': {
+                            i += 1;
+                            st = _LSTATENUM.J_1;
                             break;
                         }
                         default: {

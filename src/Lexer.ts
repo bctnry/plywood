@@ -49,6 +49,7 @@ const _expectNumber = (i: number, input: string) => {
             case _LSTATENUM.FR_1_1: { switch (input[i]) {
                 case 'e': case 'E': { i += 1; st = _LSTATENUM.FR_E_1; break; }
                 case '_': { i += 1; st = _LSTATENUM.FR_D_2; break; }
+                case 'j': case 'J': { i += 1; st = _LSTATENUM.J_1; break; }
                 default: {
                     if (_isDigit(input[i])) { i += 1; }
                     else { lastst = st; st = _LSTATENUM.STOP; } break; }
@@ -98,6 +99,7 @@ const _expectNumber = (i: number, input: string) => {
                 case 'b': case 'B': { i += 1; st = _LSTATENUM.BIN; break; }
                 case 'o': case 'O': { i += 1; st = _LSTATENUM.OCT; break; }
                 case 'x': case 'X': { i += 1; st = _LSTATENUM.HEX; break; }
+                case 'j': case 'J': { i += 1; st = _LSTATENUM.J_1; break; }
                 default: { lastst = st; st = _LSTATENUM.STOP; break; }
             } break; }
             case _LSTATENUM.ZERO_E: { switch (input[i]) {
