@@ -97,7 +97,7 @@ var Plywood = (function () {
     var _isLowerAlphabet = function (x) { return x >= 'a' && x <= 'z'; };
     var _isUpperAlphabet = function (x) { return x >= 'A' && x <= 'Z'; };
     var _isAlphabet = function (x) { return _isLowerAlphabet(x) || _isUpperAlphabet(x); };
-    var _isWhitespace = function (x) { return ' \n\t\r'.includes(x); };
+    var _isWhitespace = function (x) { return ' \t'.includes(x); };
     var _isNewline = function (x) { return '\n\r'.includes(x); };
     var RESERVED_WORDS = [
         'False', 'await', 'else', 'import', 'pass', 'None', 'break',
@@ -992,6 +992,21 @@ var Plywood = (function () {
         }
         return null;
     };
+    var _expectNewline = function (i, input) {
+        var start = i;
+        if (input.startsWith('\n', i)) {
+            return ({ type: TokenType.WHITESPACE, "class": TokenClass.NEWLINE, start: start, end: i + 1 });
+        }
+        else if (input.startsWith('\r\n', i)) {
+            return ({ type: TokenType.WHITESPACE, "class": TokenClass.NEWLINE, start: start, end: i + 2 });
+        }
+        else if (input.startsWith('\r', i)) {
+            return ({ type: TokenType.WHITESPACE, "class": TokenClass.NEWLINE, start: start, end: i + 1 });
+        }
+        else {
+            return null;
+        }
+    };
     var _expectWhitespace = function (i, input) {
         // note 2019.6.8: this version of lexer is just for syntax highlighting
         // so no special treatment for indentation.
@@ -1015,47 +1030,56 @@ var Plywood = (function () {
         var res = [];
         var i = 0;
         while (input[i]) {
-            if (_isWhitespace(input[i])) {
-                var matchres_1 = _expectWhitespace(i, input);
+            console.log(input.substring(i));
+            if (_isNewline(input[i])) {
+                var matchres_1 = _expectNewline(i, input);
                 if (matchres_1) {
                     res.push(matchres_1);
                     i = matchres_1.end;
                     continue;
                 }
             }
-            if (_isDigit(input[i]) || input[i] === '.') {
-                var matchres_2 = _expectNumber(i, input);
+            if (_isWhitespace(input[i])) {
+                var matchres_2 = _expectWhitespace(i, input);
                 if (matchres_2) {
                     res.push(matchres_2);
                     i = matchres_2.end;
                     continue;
                 }
             }
+            if (_isDigit(input[i]) || input[i] === '.') {
+                var matchres_3 = _expectNumber(i, input);
+                if (matchres_3) {
+                    res.push(matchres_3);
+                    i = matchres_3.end;
+                    continue;
+                }
+            }
             if ('rbuf\'\"'.includes(input[i])) {
-                var matchres_3 = _expectString(i, input);
-                if (matchres_3 && matchres_3.length) {
-                    res = res.concat(matchres_3);
-                    i = matchres_3[matchres_3.length - 1].end;
+                var matchres_4 = _expectString(i, input);
+                if (matchres_4 && matchres_4.length) {
+                    res = res.concat(matchres_4);
+                    i = matchres_4[matchres_4.length - 1].end;
                     continue;
                 }
             }
             if (input[i] === '_' || _isAlphabet(input[i])) {
-                var matchres_4 = _expectIdentifier(i, input);
-                if (matchres_4) {
+                var matchres_5 = _expectIdentifier(i, input);
+                if (matchres_5) {
                     var prevI = res.length ? res[res.length - 1].end : 0;
-                    var pattern = input.substring(prevI, matchres_4.end);
+                    var pattern = input.substring(prevI, matchres_5.end);
                     res.push(RESERVED_WORDS.includes(pattern) ?
-                        ({ type: TokenType.KEYWORD, "class": TokenClass.NORMAL, start: matchres_4.start, end: matchres_4.end })
-                        : matchres_4);
-                    i = matchres_4.end;
+                        ({ type: TokenType.KEYWORD, "class": TokenClass.NORMAL, start: matchres_5.start, end: matchres_5.end })
+                        : matchres_5);
+                    i = matchres_5.end;
                     continue;
                 }
             }
             if (input[i] === '#') {
-                var matchres_5 = _expectComment(i, input);
-                if (matchres_5) {
-                    res.push(matchres_5);
-                    i = matchres_5.end;
+                var matchres_6 = _expectComment(i, input);
+                if (matchres_6) {
+                    res.push(matchres_6);
+                    i = matchres_6.end;
                     continue;
                 }
             }
@@ -1084,6 +1108,7 @@ var Plywood = (function () {
         _expectString: _expectString,
         _expectIdentifier: _expectIdentifier,
         _expectSymbol: _expectSymbol,
+        _expectNewline: _expectNewline,
         _expectWhitespace: _expectWhitespace,
         _expectComment: _expectComment,
         _lex: _lex

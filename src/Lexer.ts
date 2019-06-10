@@ -9,7 +9,7 @@ const _isOctDigit = (x: any) => x >= '0' && x <= '7';
 const _isLowerAlphabet = (x: any) => x >= 'a' && x <= 'z';
 const _isUpperAlphabet = (x: any) => x >= 'A' && x <= 'Z';
 const _isAlphabet = (x: any) => _isLowerAlphabet(x) || _isUpperAlphabet(x);
-const _isWhitespace = (x: any) => ' \n\t\r'.includes(x);
+const _isWhitespace = (x: any) => ' \t'.includes(x);
 const _isNewline = (x: any) => '\n\r'.includes(x);
 
 const RESERVED_WORDS = [
@@ -500,6 +500,20 @@ const _expectSymbol
 }
 
 export
+const _expectNewline = (i: number, input: string) => {
+    let start = i;
+    if (input.startsWith('\n', i)) {
+        return ({ type: TokenType.WHITESPACE, class: TokenClass.NEWLINE, start, end: i + 1 });
+    } else if (input.startsWith('\r\n', i)) {
+        return ({ type: TokenType.WHITESPACE, class: TokenClass.NEWLINE, start, end: i + 2 });
+    } else if (input.startsWith('\r', i)) {
+        return ({ type: TokenType.WHITESPACE, class: TokenClass.NEWLINE, start, end: i + 1 });
+    } else {
+        return null;
+    }
+}
+
+export
 const _expectWhitespace = (i: number, input: string) => {
     // note 2019.6.8: this version of lexer is just for syntax highlighting
     // so no special treatment for indentation.
@@ -523,7 +537,14 @@ export
 const _lex = (input: string) => {
     let res: Token[] = [];
     let i = 0;
+    let indent: string[] = [];
     while (input[i]) {
+        if (_isNewline(input[i])) {
+            let matchres = _expectNewline(i, input);
+            if (matchres) {
+                res.push(matchres); i = matchres.end; continue;
+            }
+        }
         if (_isWhitespace(input[i])) {
             let matchres = _expectWhitespace(i, input);
             if (matchres) {
